@@ -1,0 +1,13 @@
+/* Zen Maru Gothic ローカルサブセット（本デッキ専用に拡張生成）
+   deck.html の使用全文字を収録。生成: Google Fonts css2 text= サブセット（2026-11-23）。
+   正式用語（利尿薬・肺・弱・拡・張・狭・息・苦・増 等）を含む。 */
+@font-face{
+  font-family:'Zen Maru Gothic';
+  font-style:normal;font-weight:700;font-display:swap;
+  src:url(files/zen-maru-gothic-700-deck.woff2) format('woff2');
+}
+@font-face{
+  font-family:'Zen Maru Gothic';
+  font-style:normal;font-weight:900;font-display:swap;
+  src:url(files/zen-maru-gothic-900-deck.woff2) format('woff2');
+}
