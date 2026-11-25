@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前負荷・後負荷・心駆出率（EF）クイズ</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{
+    font-family:'Zen Maru Gothic','Hiragino Maru Gothic ProN',sans-serif;
+    background:#241f19;color:#3a2c20;
+  }
+  .screen{
+    position:relative;max-width:480px;margin:0 auto;min-height:100dvh;
+    background:#5d1f14;padding:26px 20px 30px;
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .screen::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.45;mix-blend-mode:multiply;z-index:40;
+    background:
+      repeating-linear-gradient(0deg,rgba(60,20,5,.05) 0 2px,transparent 2px 5px),
+      repeating-linear-gradient(90deg,rgba(60,20,5,.04) 0 2px,transparent 2px 6px),
+      radial-gradient(ellipse 420px 300px at 88% 100%,rgba(0,0,0,.18),transparent 70%);
+  }
+  .screen>*{position:relative;z-index:1}
+  .hidden{display:none !important}
+
+  .scrap{filter:drop-shadow(3px 4px 0 rgba(30,8,2,.35))}
+  .torn-a{clip-path:polygon(1% 6%,4% 1%,22% 3%,45% 0%,68% 2%,88% 0%,99% 4%,98% 30%,100% 55%,98% 82%,99% 96%,80% 99%,55% 97%,30% 100%,8% 98%,0% 94%,2% 65%,0% 35%)}
+  .torn-b{clip-path:polygon(0% 10%,6% 2%,30% 4%,52% 1%,75% 4%,96% 2%,100% 18%,98% 45%,100% 72%,97% 94%,76% 98%,50% 100%,24% 97%,3% 99%,1% 76%,3% 48%,0% 28%)}
+  .torn-c{clip-path:polygon(3% 2%,28% 0%,55% 3%,82% 1%,98% 6%,100% 38%,97% 68%,99% 95%,72% 100%,44% 97%,16% 99%,1% 92%,0% 60%,2% 30%)}
+  .tape{clip-path:polygon(2% 18%,25% 4%,55% 10%,82% 2%,98% 14%,100% 55%,96% 88%,70% 97%,38% 92%,8% 99%,0% 70%)}
+
+  /* ---------- start / result ---------- */
+  .tag{
+    align-self:flex-start;padding:9px 18px;background:#466b7a;
+    font-size:16px;font-weight:900;color:#fdf6e3;
+    transform:rotate(-1.4deg);
+  }
+  .title-sheet{
+    background:#fdf6e3;padding:26px 24px 24px;margin-top:20px;
+    transform:rotate(-1deg);
+  }
+  .title-sheet h1{font-size:36px;font-weight:900;line-height:1.35;color:#38302a}
+  .title-sheet h1 .accent{color:#c93a2e}
+  .sub-strip{
+    background:#f2b544;padding:14px 20px;margin-top:22px;
+    transform:rotate(.7deg);
+  }
+  .sub-strip p{font-size:19px;font-weight:700;line-height:1.55;color:#4a3418}
+  .sub-strip p b{font-weight:900}
+  .big-btn{
+    margin-top:auto;width:100%;min-height:64px;border:none;cursor:pointer;
+    font-family:inherit;font-size:24px;font-weight:900;color:#fdf6e3;
+    background:#c93a2e;padding:16px;
+  }
+  .big-btn:active{filter:brightness(1.12)}
+
+  .score-sheet{
+    background:#fdf6e3;padding:30px 24px 28px;margin-top:22px;text-align:center;
+    transform:rotate(-.6deg);
+  }
+  .score-small{font-size:20px;font-weight:900;color:#5c4a33}
+  .score-big{font-size:42px;font-weight:900;color:#33302c;margin-top:8px}
+  .score-big b{font-size:60px;color:#c93a2e}
+  .again-btn{
+    margin-top:auto;width:100%;min-height:64px;border:none;cursor:pointer;
+    font-family:inherit;font-size:24px;font-weight:900;color:#fdf6e3;
+    background:#466b7a;padding:16px;
+  }
+  .again-btn:active{filter:brightness(1.12)}
+
+  /* ---------- quiz ---------- */
+  .q-head{display:flex;align-items:center;gap:12px}
+  .pos{
+    background:#38302a;color:#f2b544;font-size:17px;font-weight:900;
+    padding:7px 16px;flex:none;
+  }
+  .bar{flex:1;height:10px;background:rgba(253,246,227,.28)}
+  .bar>i{display:block;height:100%;background:#f2b544;transition:width .45s cubic-bezier(.22,.9,.26,1)}
+  .q-sheet{
+    background:#fdf6e3;padding:22px 20px 20px;margin-top:16px;
+    transform:rotate(-.5deg);
+  }
+  .q-text{font-size:23px;font-weight:900;line-height:1.5;color:#33302c}
+  .choices{margin-top:16px;display:flex;flex-direction:column;gap:11px}
+  .choice{
+    font-family:inherit;text-align:left;width:100%;min-height:60px;
+    background:#fdf6e3;color:#33302c;border:none;cursor:pointer;
+    font-size:18px;font-weight:700;line-height:1.45;
+    padding:13px 16px;display:flex;gap:10px;align-items:flex-start;
+    transition:background .25s,opacity .25s;
+  }
+  .choice .no{font-weight:900;color:#c93a2e;flex:none}
+  .choice:nth-child(1){transform:rotate(-.5deg)}
+  .choice:nth-child(2){transform:rotate(.45deg)}
+  .choice:nth-child(3){transform:rotate(-.35deg)}
+  .choice:nth-child(4){transform:rotate(.55deg)}
+  .choice:active{filter:brightness(.96)}
+  .choice:disabled{cursor:default}
+  .choice.correct{background:#5d7d4f;color:#fdf6e3}
+  .choice.correct .no{color:#f2b544}
+  .choice.wrong{background:#c8493a;color:#fdf6e3}
+  .choice.wrong .no{color:#fdf6e3}
+  .choice.dim{opacity:.5}
+
+  .feedback{display:none;margin-top:16px}
+  .feedback.show{display:block;animation:fbIn .45s cubic-bezier(.22,.9,.26,1) both}
+  @keyframes fbIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .verdict{
+    display:inline-block;padding:8px 20px;font-size:21px;font-weight:900;color:#fdf6e3;
+    transform:rotate(-1deg);
+  }
+  .verdict.ok{background:#5d7d4f}
+  .verdict.ng{background:#c8493a}
+  .exp-strip{
+    background:#f2b544;padding:13px 18px;margin-top:12px;
+    transform:rotate(-.4deg);
+  }
+  .exp-strip p{font-size:17px;font-weight:700;line-height:1.55;color:#4a3418}
+  .next-btn{
+    margin-top:14px;width:100%;min-height:58px;border:none;cursor:pointer;
+    font-family:inherit;font-size:21px;font-weight:900;color:#fdf6e3;
+    background:#466b7a;padding:14px;
+  }
+  .next-btn:active{filter:brightness(1.12)}
+</style>
+</head>
+<body>
+
+  <!-- ================= start ================= -->
+  <div class="screen" id="scrStart">
+    <div class="scrap tape tag">心不全の勉強会</div>
+    <div class="scrap torn-a title-sheet">
+      <h1>前負荷・後負荷・<br>心駆出率（EF）<br><span class="accent">クイズ</span></h1>
+    </div>
+    <div class="scrap torn-b sub-strip">
+      <p><b>全10問</b><br>スライドに合わせて進みます</p>
+    </div>
+    <button class="scrap tape big-btn" id="startBtn" type="button">はじめる</button>
+  </div>
+
+  <!-- ================= quiz ================= -->
+  <div class="screen hidden" id="scrQuiz">
+    <div class="q-head">
+      <div class="scrap tape pos" id="posLabel">1 / 10</div>
+      <div class="bar"><i id="barFill" style="width:10%"></i></div>
+    </div>
+    <div class="scrap torn-b q-sheet">
+      <div class="q-text" id="qText"></div>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback">
+      <div class="scrap tape verdict" id="verdict"></div>
+      <div class="scrap torn-c exp-strip"><p id="expText"></p></div>
+      <button class="scrap tape next-btn" id="nextBtn" type="button">つぎへ</button>
+    </div>
+  </div>
+
+  <!-- ================= result ================= -->
+  <div class="screen hidden" id="scrResult">
+    <div class="scrap tape tag">心不全の勉強会</div>
+    <div class="scrap torn-a score-sheet">
+      <div class="score-small">10問中</div>
+      <div class="score-big"><b id="scoreNum">0</b>問正解</div>
+    </div>
+    <div class="scrap torn-b sub-strip">
+      <p>間違えた問題は、講義のスライドでもう一度確認してみてください。</p>
+    </div>
+    <button class="scrap tape again-btn" id="againBtn" type="button">最初から</button>
+  </div>
+
+<script>
+var QUESTIONS = [
+  { q:"前負荷とは？",
+    c:["心臓が血液を押し出すときの抵抗",
+       "心臓が縮み始める直前に、心室が血液で満たされ、壁が引き伸ばされている程度",
+       "入った血液のうち、押し出せた割合",
+       "心臓の筋肉そのものの縮む力"],
+    a:1,
+    e:"前負荷は「縮む前の、心室の満たされ具合と壁の伸び具合」のことです。" },
+  { q:"前負荷が増えるのはどれ？",
+    c:["利尿薬を使った","出血した","輸液をした","起き上がった"],
+    a:2,
+    e:"心臓に戻ってくる血液が増えると、前負荷も増えます。" },
+  { q:"後負荷とは？",
+    c:["縮む前の、心室の満たされ具合",
+       "入った血液のうち、押し出せた割合",
+       "心拍数と血圧をかけた数",
+       "心室が血液を押し出すとき、乗り越えなければならない圧力と抵抗"],
+    a:3,
+    e:"後負荷は「押し出すときに、心室の壁にかかる負担」のことです。" },
+  { q:"後負荷が上がるのはどれ？",
+    c:["血圧が上がった","血管拡張薬を使った","血圧が下がった","利尿薬を使った"],
+    a:0,
+    e:"大動脈の圧が上がると、押し出すための負担が増えます。" },
+  { q:"心駆出率（EF）とは？",
+    c:["1分間に心臓が押し出す血液の量",
+       "入った血液のうち、1回の収縮で押し出せた割合",
+       "心室の壁の厚さ",
+       "1回に押し出す血液の量"],
+    a:1,
+    e:"EFは量ではなく割合で、％で表します。" },
+  { q:"心室に入った血液が120mL、押し出せた量が67mLのとき、EFは約何％？",
+    c:["約40％","約67％","約80％","約56％"],
+    a:3,
+    e:"67 ÷ 120 ≒ 0.56 です。EFの正常は55〜70％です。" },
+  { q:"夜、息が苦しくて座り込んだ患者さん。体の中では何が起きている？",
+    c:["血液の量が減りすぎている",
+       "EFが上がりすぎている",
+       "前負荷が増えすぎて、肺に水がたまりやすくなっている",
+       "後負荷だけが下がっている"],
+    a:2,
+    e:"横になると心臓に戻る血液が増え、前負荷が上がります。座ると戻る量が減って楽になります。" },
+  { q:"利尿薬でこの患者さんが楽になったのはなぜ？",
+    c:["心臓の筋肉の力が強くなったから",
+       "血管が締まって血圧が上がったから",
+       "心拍数が上がったから",
+       "尿として水分を出し、心臓に入ってくる血液の量（前負荷）が減ったから"],
+    a:3,
+    e:"利尿薬は「入ってくる量」を減らして、前負荷を下げる薬です。" },
+  { q:"輸液をすると、主に変わるのはどれ？",
+    c:["前負荷が増える","後負荷が増える","収縮力が増える","EFの正常な範囲が変わる"],
+    a:0,
+    e:"輸液で戻ってくる血液が増えるため、前負荷が上がります。" },
+  { q:"血管拡張薬が効くとき、主に下がるのはどれ？",
+    c:["心拍数","後負荷","EF","体重"],
+    a:1,
+    e:"血管が広がると押し出すときの抵抗が減り、後負荷が下がります。" }
+];
+
+var idx = 0, score = 0, answered = false;
+var scrStart = document.getElementById('scrStart');
+var scrQuiz  = document.getElementById('scrQuiz');
+var scrResult= document.getElementById('scrResult');
+var posLabel = document.getElementById('posLabel');
+var barFill  = document.getElementById('barFill');
+var qText    = document.getElementById('qText');
+var choicesEl= document.getElementById('choices');
+var feedback = document.getElementById('feedback');
+var verdict  = document.getElementById('verdict');
+var expText  = document.getElementById('expText');
+var TORNS = ['torn-a','torn-b','torn-c','tape'];
+
+function show(el){
+  [scrStart, scrQuiz, scrResult].forEach(function(s){ s.classList.add('hidden'); });
+  el.classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+
+function renderQ(){
+  answered = false;
+  var item = QUESTIONS[idx];
+  posLabel.textContent = (idx + 1) + ' / ' + QUESTIONS.length;
+  barFill.style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
+  qText.textContent = item.q;
+  feedback.classList.remove('show');
+  choicesEl.innerHTML = '';
+  item.c.forEach(function(text, i){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'scrap choice ' + TORNS[i % TORNS.length];
+    var no = document.createElement('span');
+    no.className = 'no';
+    no.textContent = (i + 1);
+    var tx = document.createElement('span');
+    tx.textContent = text;
+    b.appendChild(no);
+    b.appendChild(tx);
+    b.addEventListener('click', function(){ choose(i); });
+    choicesEl.appendChild(b);
+  });
+}
+
+function choose(i){
+  if (answered) return;
+  answered = true;
+  var item = QUESTIONS[idx];
+  var btns = choicesEl.querySelectorAll('.choice');
+  btns.forEach(function(b, j){
+    b.disabled = true;
+    if (j === item.a) b.classList.add('correct');
+    else if (j === i) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  if (i === item.a){
+    score++;
+    verdict.textContent = '正解';
+    verdict.className = 'scrap tape verdict ok';
+  } else {
+    verdict.textContent = '不正解';
+    verdict.className = 'scrap tape verdict ng';
+  }
+  expText.textContent = item.e;
+  feedback.classList.add('show');
+}
+
+document.getElementById('startBtn').addEventListener('click', function(){
+  idx = 0; score = 0;
+  show(scrQuiz);
+  renderQ();
+});
+document.getElementById('nextBtn').addEventListener('click', function(){
+  if (!answered) return;
+  idx++;
+  if (idx >= QUESTIONS.length){
+    document.getElementById('scoreNum').textContent = score;
+    show(scrResult);
+  } else {
+    renderQ();
+  }
+});
+document.getElementById('againBtn').addEventListener('click', function(){
+  idx = 0; score = 0;
+  show(scrStart);
+});
+</script>
+</body>
+</html>
