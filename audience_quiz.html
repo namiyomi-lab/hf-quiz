@@ -137,7 +137,7 @@
       <h1>前負荷・後負荷・<br>心駆出率（EF）<br><span class="accent">クイズ</span></h1>
     </div>
     <div class="scrap torn-b sub-strip">
-      <p><b>全10問</b><br>スライドに合わせて進みます</p>
+      <p><b>全9問</b><br>スライドに合わせて進みます</p>
     </div>
     <button class="scrap tape big-btn" id="startBtn" type="button">はじめる</button>
   </div>
@@ -146,7 +146,7 @@
   <div class="screen hidden" id="scrQuiz">
     <div class="q-head">
       <div class="scrap tape pos" id="posLabel">問題 1</div>
-      <div class="bar"><i id="barFill" style="width:10%"></i></div>
+      <div class="bar"><i id="barFill" style="width:11%"></i></div>
     </div>
     <div class="scrap torn-b q-sheet">
       <div class="q-text" id="qText"></div>
@@ -163,7 +163,7 @@
   <div class="screen hidden" id="scrResult">
     <div class="scrap tape tag">心不全の勉強会</div>
     <div class="scrap torn-a score-sheet">
-      <div class="score-small">10問中</div>
+      <div class="score-small">9問中</div>
       <div class="score-big"><b id="scoreNum">0</b>問正解</div>
     </div>
     <div class="scrap torn-b sub-strip">
@@ -203,10 +203,6 @@ var QUESTIONS = [
        "1回に押し出す血液の量"],
     a:1,
     e:"EFは量ではなく割合で、％で表します。" },
-  { q:"心室に入った血液が120mL、押し出せた量が67mLのとき、EFは約何％？",
-    c:["約40％","約67％","約80％","約56％"],
-    a:3,
-    e:"67 ÷ 120 ≒ 0.56 です。EFの正常は55〜70％です。" },
   { q:"夜、息が苦しくて座り込んだ患者さん。体の中では何が起きている？",
     c:["血液の量が減りすぎている",
        "EFが上がりすぎている",
@@ -221,14 +217,14 @@ var QUESTIONS = [
        "尿として水分を出し、心臓に入ってくる血液の量（前負荷）が減ったから"],
     a:3,
     e:"利尿薬は「入ってくる量」を減らして、前負荷を下げる薬です。" },
-  { q:"輸液をすると、主に変わるのはどれ？",
-    c:["前負荷が増える","後負荷が増える","収縮力が増える","EFの正常な範囲が変わる"],
+  { q:"点滴で水分をたくさん入れました。心臓に入ってくる血液の量（前負荷）はどうなる？",
+    c:["増える","減る","変わらない","後負荷が増える"],
     a:0,
-    e:"輸液で戻ってくる血液が増えるため、前負荷が上がります。" },
-  { q:"血管拡張薬が効くとき、主に下がるのはどれ？",
-    c:["心拍数","後負荷","EF","体重"],
+    e:"点滴で水分が増えると、心臓に戻ってくる血液が増えるので、前負荷は増えます。" },
+  { q:"血管を広げる薬が効きました。心臓が押し出すときの抵抗（後負荷）はどうなる？",
+    c:["増える","減る","変わらない","前負荷が増える"],
     a:1,
-    e:"血管が広がると押し出すときの抵抗が減り、後負荷が下がります。" }
+    e:"血管が広がると、心臓が押し出すときの抵抗が下がるので、後負荷は減ります。" }
 ];
 
 var idx = 0, score = 0, answered = false;
