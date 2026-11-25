@@ -145,7 +145,7 @@
   <!-- ================= quiz ================= -->
   <div class="screen hidden" id="scrQuiz">
     <div class="q-head">
-      <div class="scrap tape pos" id="posLabel">1 / 10</div>
+      <div class="scrap tape pos" id="posLabel">問題 1</div>
       <div class="bar"><i id="barFill" style="width:10%"></i></div>
     </div>
     <div class="scrap torn-b q-sheet">
@@ -253,7 +253,7 @@ function show(el){
 function renderQ(){
   answered = false;
   var item = QUESTIONS[idx];
-  posLabel.textContent = (idx + 1) + ' / ' + QUESTIONS.length;
+  posLabel.textContent = '問題 ' + (idx + 1);
   barFill.style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
   qText.textContent = item.q;
   feedback.classList.remove('show');
